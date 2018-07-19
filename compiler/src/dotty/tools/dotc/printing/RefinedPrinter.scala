@@ -280,6 +280,11 @@ class RefinedPrinter(_ctx: Context) extends PlainPrinter(_ctx) {
       case _ => toTextGlobal(arg)
     }
 
+    def dropType(tree: Tree): Tree = tree match {
+      case Typed(expr, _) => dropType(expr)
+      case _ => tree
+    }
+
     tree match {
       case id: Trees.BackquotedIdent[_] if !homogenizedView =>
         "`" ~ toText(id.name) ~ "`"
@@ -333,7 +338,8 @@ class RefinedPrinter(_ctx: Context) extends PlainPrinter(_ctx) {
           }
         }
       case Typed(expr, tpt) =>
-        changePrec(InfixPrec) { toText(expr) ~ ": " ~ toText(tpt) }
+        // tpt should contain enough info for printing, so we can drop type info in expr
+        changePrec(InfixPrec) { toText(dropType(expr)) ~ ": " ~ toText(tpt) }
       case NamedArg(name, arg) =>
         toText(name) ~ " = " ~ toText(arg)
       case Assign(lhs, rhs) =>
