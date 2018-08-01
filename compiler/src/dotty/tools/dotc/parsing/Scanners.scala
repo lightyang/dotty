@@ -369,6 +369,14 @@ object Scanners {
         } else if (token == EOF) { // e.g. when the REPL is parsing "val List(x, y, _*,"
           /* skip the trailing comma */
         } else reset(nextLastOffset)
+      } else if (token == AT) {
+        val nextLastOffset = lastCharOffset
+        lookahead()
+        if (token == IDENTIFIER && name.toString == "inline") {
+          token = INLINE
+        } else {
+          reset(nextLastOffset)
+        }
       }
 
     }
